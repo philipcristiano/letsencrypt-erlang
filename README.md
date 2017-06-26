@@ -53,7 +53,7 @@ Both **/path/to/webroot** and **/path/to/certs** MUST be writtable by the erlang
  $erl> application:ensure_all_started(letsencrypt).
  $erl> letsencrypt:start([{mode,webroot},{webroot_path,"/path/to/webroot"},{cert_path,"/path/to/certs"}]).
  $erl> letsencrypt:make_cert(<<"mydomain.tld">>, #{async => false}).
-{ok, #{cert => <<"/path/to/certs/mydomain.tld.crt">>, key => <<"/path/to/certs/mydomain.tld.key">>}}
+{ok, #{cert => <<"/path/to/certs/mydomain.tld.crt">>, cacert => <<"/path/to/certs/mydomain.tld.ca.crt">>, key => <<"/path/to/certs/mydomain.tld.key">>}}
  $erl> ^C
 
  $> ls -1 /path/to/certs
@@ -123,14 +123,14 @@ Params is a list of parameters, choose from the followings:
   returns:
     * in asynchronous mode, function returns **async**
     * in synchronous mode, or as asynchronous callback function parameter:  
-      * **{ok, #{cert => <<"/path/to/cert">>, key => <<"/path/to/key">>}}** on success  
+      * **{ok, #{cert => <<"/path/to/cert">>, cacert => <<"/path/to/cacert">>, key => <<"/path/to/key">>}}** on success
       * **{error, Message}** on error
 
   examples:
     * sync mode (shell is locked several seconds waiting result)
   ```erlang
     > letsencrypt:make_cert(<<"mydomain.tld">>, #{async => false}).
-    {ok, #{cert => <<"/path/to/cert">>, key => <<"/path/to/key">>}}
+    {ok, #{cert => <<"/path/to/cert">>, cacert => <<"/path/to/cacert">>,key => <<"/path/to/key">>}}
 
     > % domain tld is incorrect
     > letsencrypt:make_cert(<<"invalid.tld">>, #{async => false}).
@@ -155,25 +155,25 @@ Params is a list of parameters, choose from the followings:
     async
     >
     ...
-    completed: ok (result= #{cert => <<"/path/to/cert">>, key => <<"/path/to/key">>})
+    completed: ok (result= #{cert => <<"/path/to/cert">>, cacert => <<"/path/to/cacert">>, key => <<"/path/to/key">>})
   ```
 
     * SAN
   ```erlang
     > letsencrypt:make_cert(<<"example.com">>, #{async => false, san => [<<"www.example.com">>]}).
-    {ok, #{cert => <<"/path/to/cert">>, key => <<"/path/to/key">>}}
+    {ok, #{cert => <<"/path/to/cert">>, cacert => <<"/path/to/cacert">>, key => <<"/path/to/key">>}}
   ```
 
     * explicit **'http-01'** challenge
   ```erlang
     > letsencrypt:make_cert(<<"example.com">>, #{async => false, challenge => 'http-01'}).
-    {ok, #{cert => <<"/path/to/cert">>, key => <<"/path/to/key">>}}
+    {ok, #{cert => <<"/path/to/cert">>, cacert => <<"/path/to/cacert">>, key => <<"/path/to/key">>}}
   ```
 
     * **'tls-sni-01'** challenge
   ```erlang
     > letsencrypt:make_cert(<<"example.com">>, #{async => false, challenge => 'tls-sni-01'}).
-    {ok, #{cert => <<"/path/to/cert">>, key => <<"/path/to/key">>}}
+    {ok, #{cert => <<"/path/to/cert">>, cacert => <<"/path/to/cacert">>, key => <<"/path/to/key">>}}
   ```
 
 ## Action modes

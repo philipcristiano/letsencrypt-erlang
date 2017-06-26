@@ -36,11 +36,13 @@
     -define(STAGING_API_URL      , "http://127.0.0.1:4000/acme").
     -define(DEFAULT_API_URL      , "").
     -define(INTERMEDIATE_CERT_URL, "http://127.0.0.1:3099/test/test-ca.pem").
+    -define(ROOT_CERT_URL, "http://127.0.0.1:3099/test/test-ca.pem").
 -else.
     -define(STAGING_API_URL      , "https://acme-staging.api.letsencrypt.org/acme").
     -define(DEFAULT_API_URL      , "https://acme-v01.api.letsencrypt.org/acme").
     %TODO: dynamically get xs certificate given the one used to sign the generated one
     -define(INTERMEDIATE_CERT_URL, "https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem").
+    -define(ROOT_CERT_URL, "https://letsencrypt.org/certs/isrgrootx1.pem").
 -endif.
 %-define(AGREEMENT_URL  , <<"https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf">>).
 
@@ -58,6 +60,7 @@
     port = 80                       :: integer(),
 
     intermediate_cert = undefined   :: undefined | binary(),
+    root_cert = undefined           :: undefined | binary(),
 
     % state datas
     conn  = undefined               :: undefined | pid(),
@@ -105,8 +108,13 @@ init(Args) ->
     {ok, {IProto, _, IHost, IPort, IPath, _}} = http_uri:parse(?INTERMEDIATE_CERT_URL),
     {ok, IntermediateCert} = letsencrypt_api:get_intermediate({IProto, IHost, IPort, IPath},
                                                               State2#state.connect_opts),
+    {ok, {RProto, _, RHost, RPort, RPath, _}} = http_uri:parse(?ROOT_CERT_URL),
+    {ok, RootCert} = letsencrypt_api:get_intermediate({RProto, RHost, RPort, RPath},
+                                                              State2#state.connect_opts),
 
-    {ok, idle, State2#state{acme_srv=AcmeSrv, key=Key, jws=Jws, intermediate_cert=IntermediateCert}}.
+    {ok, idle, State2#state{acme_srv=AcmeSrv, key=Key, jws=Jws,
+                            intermediate_cert=IntermediateCert,
+                            root_cert=RootCert}}.
 
 -spec mode_opts(mode(), list(atom()|{atom(),any()})) -> {list(atom()|{atom(),any()}), state()}.
 mode_opts(Mode, Args) ->
@@ -286,7 +294,8 @@ pending(_Action, _, State=#state{challenge=Challenges}) ->
 
 
 valid(_, _, State=#state{mode=Mode, domain=Domain, sans=SANs, cert_path=CertPath, key=Key, jws=JWS,
-                             acme_srv={_,_,_,BasePath}, intermediate_cert=IntermediateCert}) ->
+                             acme_srv={_,_,_,BasePath}, intermediate_cert=IntermediateCert,
+                             root_cert=RootCert}) ->
 
     challenge_destroy(Mode, State),
 
@@ -298,9 +307,13 @@ valid(_, _, State=#state{mode=Mode, domain=Domain, sans=SANs, cert_path=CertPath
 
     {DomainCert, Nonce2} = letsencrypt_api:new_cert(Conn, BasePath, Key, JWS#{nonce => Nonce}, Csr),
 
-    CertFile = letsencrypt_ssl:certificate(str(Domain), DomainCert, IntermediateCert, CertPath),
+    {CertFile, CACertFile} = letsencrypt_ssl:certificate(str(Domain), DomainCert, IntermediateCert, RootCert, CertPath),
 
-    {reply, {ok, #{key => bin(KeyFile), cert => bin(CertFile)}}, idle, State#state{conn=Conn, nonce=Nonce2}}.
+    {reply, {ok, #{key => bin(KeyFile),
+                   cert => bin(CertFile),
+                   cacert => bin(CACertFile)}},
+            idle,
+            State#state{conn=Conn, nonce=Nonce2}}.
 
 %%%
 %%%

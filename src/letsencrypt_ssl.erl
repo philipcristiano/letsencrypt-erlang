@@ -15,7 +15,7 @@
 -module(letsencrypt_ssl).
 -author("Guillaume Bour <guillaume@bour.cc>").
 
--export([private_key/2, cert_request/3, cert_autosigned/3, certificate/4]).
+-export([private_key/2, cert_request/3, cert_autosigned/3, certificate/5]).
 
 -include_lib("public_key/include/public_key.hrl").
 -import(letsencrypt_utils, [bin/1]).
@@ -101,14 +101,16 @@ mkcert(Type, Domain, OutName, Keyfile, SANs) ->
     {ok, OutName}.
 
 
--spec certificate(string(), binary(), binary(), string()) -> string().
-certificate(Domain, DomainCert, IntermediateCert, CertsPath) ->
-    FileName = CertsPath++"/"++Domain++".crt",
+-spec certificate(string(), binary(), binary(), binary(), string()) -> string().
+certificate(Domain, DomainCert, IntermediateCert, RootCert, CertsPath) ->
+    CertFileName = CertsPath++"/"++Domain++".crt",
+    CACertFileName = CertsPath++"/"++Domain++".ca.crt",
     %io:format("domain cert: ~p~nintermediate: ~p~n", [DomainCert, IntermediateCert]),
     %io:format("writing final certificate to ~p~n", [FileName]),
 
-    file:write_file(FileName, <<(pem_format(DomainCert))/binary, $\n, IntermediateCert/binary>>),
-    FileName.
+    file:write_file(CertFileName, <<(pem_format(DomainCert))/binary, $\n>>),
+    file:write_file(CACertFileName, << IntermediateCert/binary, RootCert/binary >>),
+    {CertFileName, CACertFileName}.
 
 
 -spec pem_format(binary()) -> binary().
