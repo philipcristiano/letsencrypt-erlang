@@ -1,11 +1,11 @@
 %% Copyright 2015-2016 Guillaume Bour
-%% 
+%%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
 %% You may obtain a copy of the License at
-%% 
+%%
 %% http://www.apache.org/licenses/LICENSE-2.0
-%% 
+%%
 %% Unless required by applicable law or agreed to in writing, software
 %% distributed under the License is distributed on an "AS IS" BASIS,
 %% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -127,7 +127,7 @@ mode_opts(M, [H|Args], State) ->
     {[H|Args2], State2};
 mode_opts(_, [], State) ->
     {[], State}.
-    
+
 
 -spec getopts(list(atom()|{atom(),any()}), state()) -> state().
 getopts([], State) ->
@@ -156,7 +156,7 @@ getopts([Unk|_], _) ->
     io:format("unknow parameter: ~p~n", [Unk]),
     %throw({badarg, io_lib:format("unknown ~p parameter", [Unk])}).
     throw(badarg).
-    
+
 %%
 %%
 %%
@@ -256,7 +256,7 @@ idle({create, Domain, Opts}, _, State=#state{key=Key, jws=JWS, acme_srv={_,_,_,B
                 {pending, ok, Nonce4, Challenges}
     end,
 
-    {reply, Reply, StateName, 
+    {reply, Reply, StateName,
      State#state{conn=Conn, domain=Domain, nonce=Nonce5, challenge=NChallenges, sans=SANs}}.
 
 
@@ -303,7 +303,7 @@ valid(_, _, State=#state{mode=Mode, domain=Domain, sans=SANs, cert_path=CertPath
     {reply, {ok, #{key => bin(KeyFile), cert => bin(CertFile)}}, idle, State#state{conn=Conn, nonce=Nonce2}}.
 
 %%%
-%%% 
+%%%
 %%%
 
 handle_event(reset, _StateName, State=#state{mode=Mode}) ->
@@ -348,7 +348,7 @@ get_nonce(_, #state{nonce=Nonce}) ->
     Nonce.
 
 
--spec authz(list(binary()), challenge_type(), state()) -> {error, uncatched|binary(), nonce()}| 
+-spec authz(list(binary()), challenge_type(), state()) -> {error, uncatched|binary(), nonce()}|
                                                           {ok, map(), nonce()}.
 authz(Domains=[Domain|_], ChallengeType, State=#state{mode=Mode}) ->
     case authz_step1(Domains, ChallengeType, State, #{}) of
@@ -368,7 +368,7 @@ authz(Domains=[Domain|_], ChallengeType, State=#state{mode=Mode}) ->
     end.
 
 
--spec authz_step1(list(binary()), challenge_type(), state(), map()) -> {ok, map(), nonce()} | 
+-spec authz_step1(list(binary()), challenge_type(), state(), map()) -> {ok, map(), nonce()} |
                                                              {error, uncatched|binary(), nonce()}.
 authz_step1([], _, #state{nonce=Nonce}, Challenges) ->
     {ok, Challenges, Nonce};

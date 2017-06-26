@@ -1,11 +1,11 @@
 %% Copyright 2015-2016 Guillaume Bour
-%% 
+%%
 %% Licensed under the Apache License, Version 2.0 (the "License");
 %% you may not use this file except in compliance with the License.
 %% You may obtain a copy of the License at
-%% 
+%%
 %% http://www.apache.org/licenses/LICENSE-2.0
-%% 
+%%
 %% Unless required by applicable law or agreed to in writing, software
 %% distributed under the License is distributed on an "AS IS" BASIS,
 %% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -87,7 +87,7 @@ mkcert(Type, Domain, OutName, Keyfile, SANs) ->
     file:write_file(ConfFile, File2),
 
     Cmd = io_lib:format(
-        "openssl req -new -key '~s' -out '~s' -subj '/CN=~s' -config '~s'", 
+        "openssl req -new -key '~s' -out '~s' -subj '/CN=~s' -config '~s'",
         [Keyfile, OutName, Domain, ConfFile]),
     Cmd1 = case Type of
         request    -> [Cmd | " -reqexts SAN" ];
