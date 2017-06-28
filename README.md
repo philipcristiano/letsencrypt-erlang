@@ -41,9 +41,9 @@ Validation challenges
 
 ## Quickstart
 
-You must execute this example on the server targeted by _mydomain.tld_. 
+You must execute this example on the server targeted by _mydomain.tld_.
 Port 80 (http) must be opened and a webserver listening on it (line 1) and serving **/path/to/webroot/**
-content.  
+content.
 Both **/path/to/webroot** and **/path/to/certs** MUST be writtable by the erlang process
 
 ```erlang
@@ -97,9 +97,9 @@ Params is a list of parameters, choose from the followings:
   * **{cert_path, Path}**: pinpoint path to store generated certificates.
     Must be writable by erlang process
   * **{connect_timeout, Timeout}** (integer, optional, default to 30000): network connection timeout
-    (in milliseconds)  
+    (in milliseconds)
 
-  
+
   Mode-specific parameters:
   * _webroot_ mode:
     * **{webroot_path, Path}**: pinpoint path to store challenge thumbprints.
@@ -114,7 +114,7 @@ Params is a list of parameters, choose from the followings:
 * **letsencrypt:make_cert(Domain, Opts) :: generate a new certificate for the considered domain name**:
   * **Domain**: domain name (string or binary)
   * **Opts**: options map
-    * **async** = true|false (optional, _true_ by default): 
+    * **async** = true|false (optional, _true_ by default):
     * **callback** (optional, used only when _async=true_): function called once certificate has been
       generated.
     * **san** (list(binary), optional): supplementary domain names added to the certificate
@@ -122,7 +122,7 @@ Params is a list of parameters, choose from the followings:
 
   returns:
     * in asynchronous mode, function returns **async**
-    * in synchronous mode, or as asynchronous callback function parameter:  
+    * in synchronous mode, or as asynchronous callback function parameter:
       * **{ok, #{cert => <<"/path/to/cert">>, cacert => <<"/path/to/cacert">>, key => <<"/path/to/key">>}}** on success
       * **{error, Message}** on error
 
@@ -262,7 +262,7 @@ terminate(Reason, Req, State) ->
 
 ### standalone
 
-*When you have no live http server running on your server*.  
+*When you have no live http server running on your server*.
 
 letsencrypt-erlang will start its own webserver just enough time to validate the challenge, then will
 stop it immediately after that.
